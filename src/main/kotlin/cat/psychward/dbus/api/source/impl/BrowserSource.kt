@@ -6,22 +6,21 @@ import org.freedesktop.dbus.interfaces.Properties
 import org.freedesktop.dbus.types.UInt64
 
 @Suppress("UNCHECKED_CAST")
-class SpotifySource(val mprisPath: List<String>) : ISource {
+class BrowserSource(val mprisPath: List<String>, val browser: String) : ISource {
     private enum class TrackInfo(val value: String) {
         TRACK_NAME("xesam:title"),
+        CACHED_ART_PATH("mpris:artUrl"),
         ARTIST_NAME("xesam:artist"),
-        ART_URL("mpris:artUrl"),
         ALBUM_NAME("xesam:album"),
-        ALBUM_ARTIST("xesam:albumArtist"),
         TRACK_LENGTH("mpris:length"),
     }
 
     override fun getPlayer(): String {
-        return "${mprisPath.joinToString(".")}.spotify"
+        return "${mprisPath.joinToString(".")}.${browser}"
     }
 
     override fun getName(): String {
-        return "Spotify"
+        return browser[0].uppercase() + browser.substring(1)
     }
 
     override fun extractMetadata(properties: Properties): TrackMetadata {
@@ -33,21 +32,19 @@ class SpotifySource(val mprisPath: List<String>) : ISource {
             "${mprisPath.joinToString(".")}.Player",
             "Position"
         )
+        println("Metadata found: $metadata")
+        println("Position found: $position")
 
-        // main metadata
+        // meta
         val trackName : String = metadata[TrackInfo.TRACK_NAME.value] as String
         val trackArtists : List<String> = metadata[TrackInfo.ARTIST_NAME.value] as List<String>
         val albumName : String = metadata[TrackInfo.ALBUM_NAME.value] as String
-        val albumArtists : List<String> = metadata[TrackInfo.ALBUM_ARTIST.value] as List<String>
-        val trackArt : String = metadata[TrackInfo.ART_URL.value] as String
-
-        // Length
-        val lengthSecondProperty: UInt64 = metadata[TrackInfo.TRACK_LENGTH.value] as UInt64
-        val lengthSecond = lengthSecondProperty.value().longValueExact()
-        val posSeconds = position / 1_000_000.0
-        val lenSeconds = lengthSecond / 1_000_000.0
-
-        return TrackMetadata(trackName, trackArtists, albumName,
-            albumArtists, trackArt, lenSeconds, posSeconds)
+        val albumArt : String = metadata[TrackInfo.CACHED_ART_PATH.value] as String
+        // length
+        val length: Long = metadata[TrackInfo.TRACK_LENGTH.value] as Long
+        val lengthSeconds = length / 1_000_000.0
+        val positionSeconds = position / 1_000_000.0
+        return TrackMetadata(trackName, trackArtists, albumName, trackArtists, albumArt,
+            lengthSeconds, positionSeconds)
     }
 }
