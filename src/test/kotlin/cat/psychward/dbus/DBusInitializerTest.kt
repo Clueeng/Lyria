@@ -8,8 +8,9 @@ class DBusInitializerTest {
     fun before() {
         println("Testing DBus")
         val dbus = DBusInitializer()
-        val spotify = dbus.fromSpotify()
-        println(spotify.toString())
+        dbus.printMedia()
+//        val spotify = dbus.fromSpotify()
+//        println(spotify.toString())
     }
 
 }

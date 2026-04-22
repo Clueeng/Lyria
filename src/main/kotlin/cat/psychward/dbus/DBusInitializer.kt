@@ -55,6 +55,7 @@ class DBusInitializer(val mprisPath: String = "org.mpris.MediaPlayer2") {
             "$mprisPath.Player",
             "Metadata"
         )
+        println(metadata)
         val trackName : String = metadata[TrackInfo.TRACK_NAME.value] as String
         val trackArtists : List<String> = metadata[TrackInfo.ARTIST_NAME.value] as List<String>
         val albumName : String = metadata[TrackInfo.ALBUM_NAME.value] as String
