@@ -35,7 +35,9 @@ class BrowserSource(val mprisPath: List<String>, val browser: String) : ISource 
         val trackName : String = metadata[TrackInfo.TRACK_NAME.value] as String
         val trackArtists : List<String> = metadata[TrackInfo.ARTIST_NAME.value] as List<String>
         val albumName : String = metadata[TrackInfo.ALBUM_NAME.value] as String
-        val albumArt : String = metadata[TrackInfo.CACHED_ART_PATH.value] as String
+//        val albumArt : String = metadata[TrackInfo.CACHED_ART_PATH.value] as String
+        val albumArt: String =
+            metadata[TrackInfo.CACHED_ART_PATH.value] as? String ?: ""
         // length
         val length: Long = metadata[TrackInfo.TRACK_LENGTH.value] as Long
         val lengthSeconds = length / 1_000_000.0
