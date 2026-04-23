@@ -7,6 +7,8 @@ import cat.psychward.dbus.api.data.TrackMetadata
 import cat.psychward.dbus.api.data.fromSeconds
 import cat.psychward.dbus.api.player.lyrics.LyricsEngine
 import cat.psychward.dbus.api.player.lyrics.TrackLyrics
+import org.freedesktop.dbus.errors.NoReply
+import org.freedesktop.dbus.errors.ServiceUnknown
 import org.freedesktop.dbus.interfaces.DBus
 import kotlin.system.exitProcess
 import kotlin.test.Test
@@ -16,9 +18,9 @@ class DBusInitializerTest {
     @Test
     fun playerTest() {
         val dbus = DBusInitializer()
-        val type: PlayerType = dbus.determinePlayer()
-        val source = dbus.getSource(type)
-        val playerBusName = source.getPlayer()
+        var type: PlayerType = dbus.determinePlayer()
+        var source = dbus.getSource(type)
+        var playerBusName = source.getPlayer()
 
         var currentTrack: TrackMetadata = dbus.getCurrentTrack(source).also {
             it.lyrics = TrackLyrics(it)
@@ -53,9 +55,23 @@ class DBusInitializerTest {
         }
 
         while (true) {
-            val pos = dbus.position(playerBusName)
-            currentTrack.setProgressFromPlayer(pos)
-            Thread.sleep(1000)
+            try {
+                val pos = dbus.position(playerBusName)
+                currentTrack.setProgressFromPlayer(pos)
+                Thread.sleep(1000)
+            } catch (e: NoReply) {
+                type = dbus.determinePlayer()
+                if(type != PlayerType.None) {
+                    source = dbus.getSource(type)
+                    playerBusName = source.getPlayer()
+                }
+            } catch (e: ServiceUnknown) {
+                type = dbus.determinePlayer()
+                if(type != PlayerType.None) {
+                    source = dbus.getSource(type)
+                    playerBusName = source.getPlayer()
+                }
+            }
         }
     }
 
