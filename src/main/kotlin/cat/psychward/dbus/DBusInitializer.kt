@@ -106,7 +106,7 @@ class DBusInitializer(val mprisPath: List<String> = listOf("org", "mpris", "Medi
                 BrowserSource(mprisPath, name)
             }
             else -> {
-                error("Could not find any player")
+                error("Could not find any source")
             }
         }
 
