@@ -24,7 +24,8 @@ class TrackMetadata(
     }
 
     val percentage get() = (trackProgress / trackLength)
-    val lyrics = TrackLyrics(this)
+//    val lyrics = TrackLyrics(this)
+    var lyrics: TrackLyrics? = null
 
     override fun toString(): String {
         return "TrackMeta{trackName=$name, artists=$artists, album=$album, albumArtists=$albumArtist, " +
@@ -73,13 +74,15 @@ class TrackMetadata(
     @Volatile
     private var lastLyric: String? = null
 
-    fun listenLyricsChanges(onChange: (String?) -> Unit) {
+    fun listenLyricsChanges(onChange: (String) -> Unit) {
         Thread {
             while (true) {
-                val current = lyrics.getCurrentLyric(fromSeconds(trackProgress))
+                val current = lyrics?.getCurrentLyric(fromSeconds(trackProgress))
+                println(current)
                 if (current != lastLyric) {
                     lastLyric = current
-                    onChange(current)
+                    if(current != null)
+                        onChange(current)
                 }
                 Thread.sleep(100)
             }
