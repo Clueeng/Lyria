@@ -10,15 +10,7 @@ class DBusInitializerTest {
     fun before() {
         println("Testing DBus")
         val dbus = DBusInitializer()
-        val type: PlayerType = if(dbus.isRunning("spotify"))
-            PlayerType.Spotify
-        else if(dbus.isRunning("firefox"))
-            PlayerType.Browser
-        else {
-            println("No music playing")
-            exitProcess(0)
-        }
-
+        val type: PlayerType = dbus.determinePlayer()
         val currentTrack = dbus.getCurrentTrack(type)
         println(currentTrack.toString())
     }

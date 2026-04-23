@@ -32,6 +32,14 @@ class DBusInitializer(val mprisPath: List<String> = listOf("org", "mpris", "Medi
         return false
     }
 
+    fun determinePlayer() : PlayerType {
+        if(isRunning("spotify")) return PlayerType.Spotify
+        if(isRunning("firefox")
+            || isRunning("chrome")) return PlayerType.Browser
+        println("Could not find any player")
+        return PlayerType.None
+    }
+
 
     fun getCurrentTrack(type: PlayerType) : TrackMetadata {
         val source: ISource = when(type) {
@@ -49,6 +57,9 @@ class DBusInitializer(val mprisPath: List<String> = listOf("org", "mpris", "Medi
                 val name = names[0].replace("org.mpris.MediaPlayer2.", "")
                 println("Browser found: $name")
                 BrowserSource(mprisPath, name)
+            }
+            else -> {
+                error("Could not find any player")
             }
         }
         val playerName = source.getPlayer()
