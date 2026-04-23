@@ -1,4 +1,4 @@
-package cat.psychward.dbus.api.source
+package cat.psychward.dbus.api.player.source
 
 import cat.psychward.dbus.api.data.TrackMetadata
 import org.freedesktop.dbus.interfaces.Properties

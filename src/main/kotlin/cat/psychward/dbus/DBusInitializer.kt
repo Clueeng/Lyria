@@ -2,14 +2,13 @@ package cat.psychward.dbus
 
 import cat.psychward.dbus.api.PlayerType
 import cat.psychward.dbus.api.data.TrackMetadata
-import cat.psychward.dbus.api.source.ISource
-import cat.psychward.dbus.api.source.impl.BrowserSource
-import cat.psychward.dbus.api.source.impl.SpotifySource
+import cat.psychward.dbus.api.player.source.ISource
+import cat.psychward.dbus.api.player.source.impl.BrowserSource
+import cat.psychward.dbus.api.player.source.impl.SpotifySource
 import org.freedesktop.dbus.connections.impl.DBusConnection
 import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder
 import org.freedesktop.dbus.interfaces.DBus
 import org.freedesktop.dbus.interfaces.Properties
-import org.freedesktop.dbus.types.UInt64
 import kotlin.jvm.java
 
 @Suppress("UNCHECKED_CAST")
@@ -45,7 +44,6 @@ class DBusInitializer(val mprisPath: List<String> = listOf("org", "mpris", "Medi
         val source: ISource = when(type) {
             PlayerType.Spotify -> SpotifySource(mprisPath)
             PlayerType.Browser -> {
-                println("Browser start")
                 val dbus = bus.getRemoteObject(
                     "org.freedesktop.DBus",
                     "/org/freedesktop/DBus",
@@ -55,7 +53,6 @@ class DBusInitializer(val mprisPath: List<String> = listOf("org", "mpris", "Medi
                     it.startsWith("org.mpris.MediaPlayer2.") && !it.contains("spotify")
                 }
                 val name = names[0].replace("org.mpris.MediaPlayer2.", "")
-                println("Browser found: $name")
                 BrowserSource(mprisPath, name)
             }
             else -> {
@@ -68,6 +65,7 @@ class DBusInitializer(val mprisPath: List<String> = listOf("org", "mpris", "Medi
             "/${mprisPath.joinToString("/")}",
             Properties::class.java
         )
+        println("properties=$properties")
         return source.extractMetadata(properties)
     }
 }
