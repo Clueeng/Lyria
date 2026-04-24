@@ -4,7 +4,7 @@ import cat.psychward.dbus.api.data.TrackMetadata
 import cat.psychward.dbus.api.data.fromSeconds
 
 class LyricsEngine {
-
+    private var thread: Thread? = null
     private var lastLyric: String? = null
 
     fun start(
@@ -12,9 +12,8 @@ class LyricsEngine {
         getPosition: () -> Double,
         onChange: (String) -> Unit
     ) {
-        Thread {
+        thread = Thread {
             while (true) {
-
                 val track = getTrack()
                 val lyrics = track.lyrics
 
@@ -29,6 +28,12 @@ class LyricsEngine {
 
                 Thread.sleep(100)
             }
-        }.start()
+        }
+        thread?.start()
+    }
+
+    fun terminate() {
+        thread?.interrupt()
+        thread = null
     }
 }

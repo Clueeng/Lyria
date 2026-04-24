@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "cat.psychward.dbus"
-version = "1.0-SNAPSHOT"
+version = "0.1-beta"
 
 val libdbusVersion = "5.2.0"
 
