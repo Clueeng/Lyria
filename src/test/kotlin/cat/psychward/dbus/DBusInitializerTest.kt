@@ -38,9 +38,6 @@ class DBusInitializerTest {
         }
         dbus.listenToPlayerChanges(playerBusName, MediaListenerType.RESUME) {
             println("Resumed")
-//            currentTrack = dbus.getCurrentTrack(source).also {
-//                it.lyrics = TrackLyrics(it)
-//            }
         }
         dbus.listenToPlayerChanges(playerBusName, MediaListenerType.STOP) {
             println("Stopped")
