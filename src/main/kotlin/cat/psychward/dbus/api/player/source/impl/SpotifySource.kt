@@ -1,7 +1,7 @@
-package cat.psychward.dbus.api.source.impl
+package cat.psychward.dbus.api.player.source.impl
 
 import cat.psychward.dbus.api.data.TrackMetadata
-import cat.psychward.dbus.api.source.ISource
+import cat.psychward.dbus.api.player.source.ISource
 import org.freedesktop.dbus.interfaces.Properties
 import org.freedesktop.dbus.types.UInt64
 
@@ -25,6 +25,7 @@ class SpotifySource(val mprisPath: List<String>) : ISource {
     }
 
     override fun extractMetadata(properties: Properties): TrackMetadata {
+        // duplicated code idc!!!
         val metadata = properties.Get<Map<String, Any>>(
             "${mprisPath.joinToString(".")}.Player",
             "Metadata"

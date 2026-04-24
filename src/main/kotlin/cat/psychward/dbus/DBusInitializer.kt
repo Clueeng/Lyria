@@ -1,15 +1,16 @@
 package cat.psychward.dbus
 
 import cat.psychward.dbus.api.PlayerType
+import cat.psychward.dbus.api.data.MediaListenerType
 import cat.psychward.dbus.api.data.TrackMetadata
-import cat.psychward.dbus.api.source.ISource
-import cat.psychward.dbus.api.source.impl.BrowserSource
-import cat.psychward.dbus.api.source.impl.SpotifySource
+import cat.psychward.dbus.api.player.source.ISource
+import cat.psychward.dbus.api.player.source.impl.BrowserSource
+import cat.psychward.dbus.api.player.source.impl.SpotifySource
 import org.freedesktop.dbus.connections.impl.DBusConnection
 import org.freedesktop.dbus.connections.impl.DBusConnectionBuilder
 import org.freedesktop.dbus.interfaces.DBus
 import org.freedesktop.dbus.interfaces.Properties
-import org.freedesktop.dbus.types.UInt64
+import javax.xml.transform.Source
 import kotlin.jvm.java
 
 @Suppress("UNCHECKED_CAST")
@@ -40,12 +41,59 @@ class DBusInitializer(val mprisPath: List<String> = listOf("org", "mpris", "Medi
         return PlayerType.None
     }
 
+    fun listenToPlayerChanges(playerBusName: String, listenerType: MediaListenerType, run: () -> Unit) {
+        val player = bus.getRemoteObject(
+            playerBusName,
+            "/org/mpris/MediaPlayer2",
+            Properties::class.java
+        )
 
-    fun getCurrentTrack(type: PlayerType) : TrackMetadata {
-        val source: ISource = when(type) {
+        bus.addSigHandler(
+            Properties.PropertiesChanged::class.java,
+            player
+        ) { signal ->
+            listen(signal, listenerType, run)
+        }
+    }
+
+    fun listen(signal: Properties.PropertiesChanged, listenerType: MediaListenerType, run: () -> Unit) {
+        val changed = signal.propertiesChanged
+
+        for ((key, value) in changed) {
+            when (key) {
+                "PlaybackStatus" -> {
+                    val status = value.value as String
+                    if(status == listenerType.code) {
+                        run.invoke()
+                    }
+                }
+                "Metadata" -> {
+                    if(listenerType == MediaListenerType.CHANGED) {
+                        run.invoke()
+                    }
+                }
+            }
+        }
+    }
+
+    fun position(playerName: String): Double {
+        val properties = bus.getRemoteObject(
+            playerName,
+            "/${mprisPath.joinToString("/")}",
+            Properties::class.java
+        )
+        val position = properties.Get(
+            "org.mpris.MediaPlayer2.Player",
+            "Position"
+        ) as Long
+
+        return position / 1_000_000.0
+    }
+
+    fun getSource(type: PlayerType): ISource {
+        return when(type) {
             PlayerType.Spotify -> SpotifySource(mprisPath)
             PlayerType.Browser -> {
-                println("Browser start")
                 val dbus = bus.getRemoteObject(
                     "org.freedesktop.DBus",
                     "/org/freedesktop/DBus",
@@ -55,13 +103,16 @@ class DBusInitializer(val mprisPath: List<String> = listOf("org", "mpris", "Medi
                     it.startsWith("org.mpris.MediaPlayer2.") && !it.contains("spotify")
                 }
                 val name = names[0].replace("org.mpris.MediaPlayer2.", "")
-                println("Browser found: $name")
                 BrowserSource(mprisPath, name)
             }
             else -> {
-                error("Could not find any player")
+                error("Could not find any source")
             }
         }
+
+    }
+
+    fun getCurrentTrack(source: ISource) : TrackMetadata {
         val playerName = source.getPlayer()
         val properties = bus.getRemoteObject(
             playerName,

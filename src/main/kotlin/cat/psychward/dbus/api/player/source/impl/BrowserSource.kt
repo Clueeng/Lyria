@@ -1,9 +1,8 @@
-package cat.psychward.dbus.api.source.impl
+package cat.psychward.dbus.api.player.source.impl
 
 import cat.psychward.dbus.api.data.TrackMetadata
-import cat.psychward.dbus.api.source.ISource
+import cat.psychward.dbus.api.player.source.ISource
 import org.freedesktop.dbus.interfaces.Properties
-import org.freedesktop.dbus.types.UInt64
 
 @Suppress("UNCHECKED_CAST")
 class BrowserSource(val mprisPath: List<String>, val browser: String) : ISource {
@@ -32,14 +31,13 @@ class BrowserSource(val mprisPath: List<String>, val browser: String) : ISource 
             "${mprisPath.joinToString(".")}.Player",
             "Position"
         )
-        println("Metadata found: $metadata")
-        println("Position found: $position")
-
         // meta
         val trackName : String = metadata[TrackInfo.TRACK_NAME.value] as String
         val trackArtists : List<String> = metadata[TrackInfo.ARTIST_NAME.value] as List<String>
         val albumName : String = metadata[TrackInfo.ALBUM_NAME.value] as String
-        val albumArt : String = metadata[TrackInfo.CACHED_ART_PATH.value] as String
+//        val albumArt : String = metadata[TrackInfo.CACHED_ART_PATH.value] as String
+        val albumArt: String =
+            metadata[TrackInfo.CACHED_ART_PATH.value] as? String ?: ""
         // length
         val length: Long = metadata[TrackInfo.TRACK_LENGTH.value] as Long
         val lengthSeconds = length / 1_000_000.0

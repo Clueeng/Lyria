@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.3.10"
+    kotlin("plugin.serialization") version "2.3.10"
 }
 
 group = "cat.psychward.dbus"
@@ -17,6 +18,7 @@ dependencies {
     implementation("com.github.hypfvieh:dbus-java-core:$libdbusVersion")
     // Source: https://mvnrepository.com/artifact/com.github.hypfvieh/dbus-java-transport-native-unixsocket
     implementation("com.github.hypfvieh:dbus-java-transport-native-unixsocket:$libdbusVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 }
 
 kotlin {
