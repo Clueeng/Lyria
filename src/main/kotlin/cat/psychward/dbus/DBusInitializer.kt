@@ -19,7 +19,6 @@ class DBusInitializer(val mprisPath: List<String> = listOf("org", "mpris", "Medi
         .forSessionBus().build()
 
     fun isRunning(app: String) : Boolean {
-        val bus = DBusConnectionBuilder.forSessionBus().build()
         val dbus = bus.getRemoteObject(
             "org.freedesktop.DBus",
             "/org/freedesktop/DBus",
