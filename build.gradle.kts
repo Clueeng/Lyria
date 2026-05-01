@@ -20,7 +20,6 @@ dependencies {
     implementation("com.github.hypfvieh:dbus-java-transport-native-unixsocket:$libdbusVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 }
-
 kotlin {
     jvmToolchain(21)
 }
